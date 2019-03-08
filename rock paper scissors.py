@@ -1,5 +1,6 @@
 import random
 
+
 class Player:
   pass
 
@@ -10,3 +11,10 @@ class HumanPlayer(Player):
 
 class ComputerPlayer(Player):
   pass
+
+
+class Strategy:
+
+  def __init__(self, name):
+    self.name = name
+
