@@ -7,3 +7,6 @@ class Player:
 class HumanPlayer(Player):
   pass
 
+
+class ComputerPlayer(Player):
+  pass
