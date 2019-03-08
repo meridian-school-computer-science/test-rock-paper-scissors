@@ -1,4 +1,9 @@
 import random
 
-class player:
+class Player:
   pass
+
+
+class HumanPlayer(Player):
+  pass
+
