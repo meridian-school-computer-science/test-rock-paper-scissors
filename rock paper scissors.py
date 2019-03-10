@@ -9,6 +9,15 @@ class Player:
         self.losses = 0
         self.ties = 0
 
+    def add_wins(self):
+        self.wins += 1
+
+    def add_losses(self):
+        self.losses += 1
+
+    def add_ties(self):
+        self.ties += 1
+
 
 class HumanPlayer(Player):
 
@@ -44,8 +53,23 @@ class ComputerPlayer(Player):
         self._play = value
 
 
+class StrategyList(list):
+
+    def __init__(self, name):
+        super().__init__()
+        self.name = name
+        self.options = []
+
+    def add_strategy(self, a_strategy: Strategy):
+        self.options.append(a_strategy)
+
+
 class Strategy:
 
     def __init__(self, name):
         self.name = name
+        self.defeats = Strategy
 
+    @self.defeats.setter
+    def defeats(self, other):
+        self.defeats = other
