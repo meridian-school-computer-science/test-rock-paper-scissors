@@ -49,8 +49,8 @@ class ComputerPlayer(Player):
         return self.play
 
     @play.setter
-    def play(self, value):
-        self._play = value
+    def play(self, a_strategy):
+        self.play = a_strategy
 
 
 class StrategyList(list):
