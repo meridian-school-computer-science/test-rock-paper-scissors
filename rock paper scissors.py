@@ -2,19 +2,50 @@ import random
 
 
 class Player:
-  pass
+
+    def __init__(self, name):
+        self.name = name
+        self.wins = 0
+        self.losses = 0
+        self.ties = 0
 
 
 class HumanPlayer(Player):
-  pass
+
+    def __init__(self, name):
+        super().__init__(name)
+        self.play = Strategy
 
 
 class ComputerPlayer(Player):
-  pass
+    """ Purpose: This class is for a computer opponent.
+
+        The strategy for the ComputerPlayer needs to use a random choose function from StrategyList object.
+
+    """
+
+    def __init__(self):
+        super().__init__(name)
+        self.play = Strategy
+
+    def set_random(self, a_strategy: Strategy):
+        """
+
+        :type a_strategy: Strategy
+        """
+        self.play = a_strategy
+
+    @property
+    def play(self):
+        return self.play
+
+    @play.setter
+    def play(self, value):
+        self._play = value
 
 
 class Strategy:
 
-  def __init__(self, name):
-    self.name = name
+    def __init__(self, name):
+        self.name = name
 
