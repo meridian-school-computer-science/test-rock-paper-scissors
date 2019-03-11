@@ -63,6 +63,18 @@ class StrategyList(list):
     def add_strategy(self, a_strategy: Strategy):
         self.options.append(a_strategy)
 
+    def __repr__(self):
+        return f"StrategyList ({self.name})"
+
+    def __str__(self):
+        message = f"{self.name} ="
+        for e in self.options:
+            message = message + " " + e + ","
+        return message [:-1]
+
+    def get_random(self):
+        return random.choice(self.options)
+
 
 class Strategy:
 
@@ -73,3 +85,32 @@ class Strategy:
     @self.defeats.setter
     def defeats(self, other):
         self.defeats = other
+
+    def __repr__(self):
+        return f"Strategy ({self.name})"
+
+    def __str__(self):
+        return f"{self.name}, defeats {self.defeats}"
+
+
+class Controller:
+
+    def __init__(self):
+        self.strategy_list = StrategyList('Basic')
+        self.human = HumanPlayer('temp')
+        self.computer = ComputerPlayer('HAL')
+
+    def build_strategy_list(self):
+        rock = Strategy('rock')
+        paper = Strategy('paper')
+        scissors = Strategy('scissors')
+        rock.defeats = scissors
+        paper.defeats = rock
+        scissors.defeats = paper
+        self.strategy_list.add_strategy(rock)
+        self.strategy_list.add_strategy(paper)
+        self.strategy_list.add_strategy(scissors)
+
+    def do_computer_random(self):
+        play = self.strategy_list.get_random()
+        self.computer.set_random(play)
