@@ -33,11 +33,11 @@ class ComputerPlayer(Player):
 
     """
 
-    def __init__(self):
+    def __init__(self, name):
         super().__init__(name)
         self.play = Strategy
 
-    def set_random(self, a_strategy: Strategy):
+    def set_random(self, a_strategy):
         """
 
         :type a_strategy: Strategy
@@ -48,7 +48,6 @@ class ComputerPlayer(Player):
     def play(self):
         return self.play
 
-    @play.setter
     def play(self, a_strategy):
         self.play = a_strategy
 
@@ -60,7 +59,7 @@ class StrategyList(list):
         self.name = name
         self.options = []
 
-    def add_strategy(self, a_strategy: Strategy):
+    def add_strategy(self, a_strategy):
         self.options.append(a_strategy)
 
     def __repr__(self):
@@ -82,15 +81,14 @@ class Strategy:
         self.name = name
         self.defeats = Strategy
 
-    @self.defeats.setter
-    def defeats(self, other):
+    def dominates(self, other):
         self.defeats = other
 
     def __repr__(self):
         return f"Strategy ({self.name})"
 
     def __str__(self):
-        return f"{self.name}, defeats {self.defeats}"
+        return f"{self.name}, defeats {self.defeats.name}"
 
 
 class Controller:
@@ -104,9 +102,9 @@ class Controller:
         rock = Strategy('rock')
         paper = Strategy('paper')
         scissors = Strategy('scissors')
-        rock.defeats = scissors
-        paper.defeats = rock
-        scissors.defeats = paper
+        rock.dominates(scissors)
+        paper.dominates(rock)
+        scissors.dominates(paper)
         self.strategy_list.add_strategy(rock)
         self.strategy_list.add_strategy(paper)
         self.strategy_list.add_strategy(scissors)
@@ -114,3 +112,10 @@ class Controller:
     def do_computer_random(self):
         play = self.strategy_list.get_random()
         self.computer.set_random(play)
+
+game = Controller()
+game.build_strategy_list()
+print(game.human.name)
+print(game.computer.name)
+game.do_computer_random()
+print(game.computer.play)
