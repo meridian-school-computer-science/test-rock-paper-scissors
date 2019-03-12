@@ -18,6 +18,9 @@ class Player:
     def add_ties(self):
         self.ties += 1
 
+    def __str__(self):
+        return f"{self.name} with {self.wins} wins, and {self.losses}"
+
 
 class HumanPlayer(Player):
 
@@ -102,42 +105,69 @@ class Controller:
         self.strategy_list = StrategyList('Basic')
         self.human = HumanPlayer('temp')
         self.computer = ComputerPlayer('HAL')
+        self.tie = ComputerPlayer('Tie')
+        self.winner = Player
         self.build_strategy_list()
 
     def build_strategy_list(self):
         rock = Strategy('rock')
         paper = Strategy('paper')
         scissors = Strategy('scissors')
+        quit = Strategy('quit')
         rock.dominates(scissors)
         paper.dominates(rock)
         scissors.dominates(paper)
         self.strategy_list.add_strategy(rock)
         self.strategy_list.add_strategy(paper)
         self.strategy_list.add_strategy(scissors)
+        self.strategy_list.add_strategy(quit)
 
     def do_computer_random(self):
         play = self.strategy_list.get_random()
         self.computer.set_random(play)
 
     def get_human_play(self):
-        pass
+        choice = int(input('Please choose a strategy:\n1) Rock, \n2) Paper, \n3)Scissors, or \n4) Quit.'))
+        if choice == 1:
+            self.human.play = self.strategy_list[0]
+        elif choice == 2:
+            self.human.play = self.strategy_list[1]
+        elif choice == 3:
+            self.human.play = self.strategy_list[2]
+        elif choice == 4:
+            self.human.play = self.strategy_list[3]
 
-    def get_who_wins(self):
-        pass
+    def set_winner(self):
+        if self.computer.play.dominates(self.human.play):
+            self.winner = self.computer
+        elif self.human.play.dominates(self.computer.play):
+            self.winner = self.human
+        else:
+            self.winner = self.tie
 
     def do_round_with_ties(self):
         self.do_computer_random()
         self.get_human_play()
-        if self.human.play != 'quit':
-            self.get_who_wins()
+        if self.human.play != self.strategy_list[3]:
+            self.set_winner()
             self.update_scores()
 
     def update_scores(self):
-        pass
+        if self.winner == self.human:
+            self.human.add_wins()
+            self.computer.add_losses()
+        elif self.winner == self.computer:
+            self.computer.add_wins()
+            self.human.add_losses()
+        else:
+            self.computer.add_ties()
+            self.human.add_ties()
 
 
 game = Controller()
 print(game.human.name)
 print(game.computer.name)
-game.do_computer_random()
+
 print(game.computer.play)
+print(game.human.play)
+print(game.winner)
