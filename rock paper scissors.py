@@ -25,6 +25,11 @@ class HumanPlayer(Player):
         super().__init__(name)
         self.play = Strategy
 
+    def get_name(self):
+        pass
+
+
+
 
 class ComputerPlayer(Player):
     """ Purpose: This class is for a computer opponent.
@@ -97,6 +102,7 @@ class Controller:
         self.strategy_list = StrategyList('Basic')
         self.human = HumanPlayer('temp')
         self.computer = ComputerPlayer('HAL')
+        self.build_strategy_list()
 
     def build_strategy_list(self):
         rock = Strategy('rock')
@@ -113,8 +119,24 @@ class Controller:
         play = self.strategy_list.get_random()
         self.computer.set_random(play)
 
+    def get_human_play(self):
+        pass
+
+    def get_who_wins(self):
+        pass
+
+    def do_round_with_ties(self):
+        self.do_computer_random()
+        self.get_human_play()
+        if self.human.play != 'quit':
+            self.get_who_wins()
+            self.update_scores()
+
+    def update_scores(self):
+        pass
+
+
 game = Controller()
-game.build_strategy_list()
 print(game.human.name)
 print(game.computer.name)
 game.do_computer_random()
