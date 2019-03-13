@@ -29,9 +29,8 @@ class HumanPlayer(Player):
         self.play = Strategy
 
     def get_name(self):
-        pass
-
-
+        temp = input('Please enter the name you would like to be called by: ')
+        self.name = temp
 
 
 class ComputerPlayer(Player):
@@ -104,6 +103,7 @@ class Controller:
     def __init__(self):
         self.strategy_list = StrategyList('Basic')
         self.human = HumanPlayer('temp')
+        self.human.get_name()
         self.computer = ComputerPlayer('HAL')
         self.tie = ComputerPlayer('Tie')
         self.winner = Player
