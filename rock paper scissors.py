@@ -44,18 +44,10 @@ class ComputerPlayer(Player):
         super().__init__(name)
         self.play = Strategy
 
-    def set_random(self, a_strategy):
-        """
-
-        :type a_strategy: Strategy
-        """
-        self.play = a_strategy
-
-    @property
-    def play(self):
+    def get_play(self):
         return self.play
 
-    def play(self, a_strategy):
+    def set_play(self, a_strategy):
         self.play = a_strategy
 
 
@@ -75,7 +67,7 @@ class StrategyList(list):
     def __str__(self):
         message = f"{self.name} ="
         for e in self.options:
-            message = message + " " + e + ","
+            message = message + " " + str(e) + ","
         return message [:-1]
 
     def get_random(self):
@@ -95,7 +87,13 @@ class Strategy:
         return f"Strategy ({self.name})"
 
     def __str__(self):
-        return f"{self.name}, defeats {self.defeats.name}"
+        return f"{self.name}"
+
+    def get_strategy_description(self):
+        temp = f"{self.name}"
+        if self.name != 'quit':
+            temp = temp + f" defeats {self.defeats.name}"
+        return temp
 
 
 class Controller:
@@ -107,40 +105,46 @@ class Controller:
         self.computer = ComputerPlayer('HAL')
         self.tie = ComputerPlayer('Tie')
         self.winner = Player
+        self.want_to_quit = False
         self.build_strategy_list()
+        print(self.strategy_list)
 
     def build_strategy_list(self):
         rock = Strategy('rock')
         paper = Strategy('paper')
         scissors = Strategy('scissors')
-        quit = Strategy('quit')
         rock.dominates(scissors)
         paper.dominates(rock)
         scissors.dominates(paper)
         self.strategy_list.add_strategy(rock)
         self.strategy_list.add_strategy(paper)
         self.strategy_list.add_strategy(scissors)
-        self.strategy_list.add_strategy(quit)
+
 
     def do_computer_random(self):
         play = self.strategy_list.get_random()
-        self.computer.set_random(play)
+        self.computer.set_play(play)
 
     def get_human_play(self):
-        choice = int(input('Please choose a strategy:\n1) Rock, \n2) Paper, \n3)Scissors, or \n4) Quit.'))
-        if choice == 1:
-            self.human.play = self.strategy_list[0]
-        elif choice == 2:
-            self.human.play = self.strategy_list[1]
-        elif choice == 3:
-            self.human.play = self.strategy_list[2]
-        elif choice == 4:
-            self.human.play = self.strategy_list[3]
+        correct = False
+        while not correct:
+            choice = int(input('Please choose a strategy:\n1) Rock, \n2) Paper, \n3) Scissors.\nSelection: '))
+            if choice == 1:
+                self.human.play = self.strategy_list.options[0]
+                correct = True
+            elif choice == 2:
+                self.human.play = self.strategy_list.options[1]
+                correct = True
+            elif choice == 3:
+                self.human.play = self.strategy_list.options[2]
+                correct = True
+            else:
+                print('Sorry, improper choice detected. Please enter only 1 - 3.')
 
     def set_winner(self):
-        if self.computer.play.dominates(self.human.play):
+        if self.computer.play.dominates == self.human.play:
             self.winner = self.computer
-        elif self.human.play.dominates(self.computer.play):
+        elif self.human.play.dominates == self.computer.play:
             self.winner = self.human
         else:
             self.winner = self.tie
@@ -148,9 +152,10 @@ class Controller:
     def do_round_with_ties(self):
         self.do_computer_random()
         self.get_human_play()
-        if self.human.play != self.strategy_list[3]:
-            self.set_winner()
-            self.update_scores()
+        self.set_winner()
+        print(self.show_plays())
+        print(self.winner.name)
+        self.update_scores()
 
     def update_scores(self):
         if self.winner == self.human:
@@ -163,11 +168,33 @@ class Controller:
             self.computer.add_ties()
             self.human.add_ties()
 
+    def show_plays(self):
+        return f"Round complete, you chose {self.human.play.name}, and I chose {self.computer.play.name}."
+
+    def ask_to_play_round(self):
+        correct = False
+        while not correct:
+            choice = input('Prepare for round...\nAre you ready? (y/n): ')
+            if choice.lower() == 'n':
+                self.want_to_quit = True
+                correct = True
+            elif choice.lower() == 'y':
+                self.want_to_quit = False
+                correct = True
+            else:
+                print('Improper input detected, please enter only a y or n.')
+
 
 game = Controller()
 print(game.human.name)
 print(game.computer.name)
 
-print(game.computer.play)
-print(game.human.play)
-print(game.winner)
+
+while not game.want_to_quit:
+    game.ask_to_play_round()
+    if not game.want_to_quit:
+        game.do_round_with_ties()
+
+        print(f"The winner was: {game.winner}")
+    else:
+        print('ok, goodbye.')
