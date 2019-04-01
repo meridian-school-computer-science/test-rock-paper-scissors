@@ -122,7 +122,6 @@ class Controller:
         self.strategy_list.add_strategy(paper)
         self.strategy_list.add_strategy(scissors)
 
-
     def do_computer_random(self):
         play = self.strategy_list.get_random()
         self.computer.set_play(play)
@@ -187,12 +186,10 @@ class Controller:
 
 
 game = Controller()
-
 while not game.want_to_quit:
     game.ask_to_play_round()
     if not game.want_to_quit:
         game.do_round_with_ties()
-
         print(f"The winner was: {game.winner}")
     else:
         print('ok, goodbye.')
