@@ -19,7 +19,10 @@ class Player:
         self.ties += 1
 
     def __str__(self):
-        return f"{self.name} with {self.wins} wins, and {self.losses}"
+        if self.name == 'Tie':
+            return f"Neither, we tied."
+        else:
+            return f"{self.name} with {self.wins} wins, {self.losses} losses, and {self.ties} ties."
 
 
 class HumanPlayer(Player):
@@ -107,7 +110,6 @@ class Controller:
         self.winner = Player
         self.want_to_quit = False
         self.build_strategy_list()
-        print(self.strategy_list)
 
     def build_strategy_list(self):
         rock = Strategy('rock')
@@ -142,9 +144,9 @@ class Controller:
                 print('Sorry, improper choice detected. Please enter only 1 - 3.')
 
     def set_winner(self):
-        if self.computer.play.dominates == self.human.play:
+        if self.computer.play.defeats == self.human.play:
             self.winner = self.computer
-        elif self.human.play.dominates == self.computer.play:
+        elif self.human.play.defeats == self.computer.play:
             self.winner = self.human
         else:
             self.winner = self.tie
@@ -154,7 +156,6 @@ class Controller:
         self.get_human_play()
         self.set_winner()
         print(self.show_plays())
-        print(self.winner.name)
         self.update_scores()
 
     def update_scores(self):
@@ -186,9 +187,6 @@ class Controller:
 
 
 game = Controller()
-print(game.human.name)
-print(game.computer.name)
-
 
 while not game.want_to_quit:
     game.ask_to_play_round()
