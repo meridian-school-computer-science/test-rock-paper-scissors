@@ -35,6 +35,21 @@ class HumanPlayer(Player):
         temp = input('Please enter the name you would like to be called by: ')
         self.name = temp
 
+    def get_play_from_user(self, the_strategy):
+        correct = False
+        while not correct:
+            choice = int(input('Please choose a strategy:\n1) Rock, \n2) Paper, \n3) Scissors.\nSelection: '))
+            if choice == 1:
+                self.play = the_strategy.options[0]
+                correct = True
+            elif choice == 2:
+                self.play = the_strategy.options[1]
+                correct = True
+            elif choice == 3:
+                self.play = the_strategy.options[2]
+                correct = True
+            else:
+                print('Sorry, improper choice detected. Please enter only 1 - 3.')
 
 class ComputerPlayer(Player):
     """ Purpose: This class is for a computer opponent.
@@ -52,6 +67,10 @@ class ComputerPlayer(Player):
 
     def set_play(self, a_strategy):
         self.play = a_strategy
+
+    def select_random_play(self, the_strategy_list):
+        play = the_strategy_list.get_random()
+        self.set_play(play)
 
 
 class StrategyList(list):
@@ -123,24 +142,10 @@ class Controller:
         self.strategy_list.add_strategy(scissors)
 
     def do_computer_random(self):
-        play = self.strategy_list.get_random()
-        self.computer.set_play(play)
+        self.computer.select_random_play(self.strategy_list)
 
     def get_human_play(self):
-        correct = False
-        while not correct:
-            choice = int(input('Please choose a strategy:\n1) Rock, \n2) Paper, \n3) Scissors.\nSelection: '))
-            if choice == 1:
-                self.human.play = self.strategy_list.options[0]
-                correct = True
-            elif choice == 2:
-                self.human.play = self.strategy_list.options[1]
-                correct = True
-            elif choice == 3:
-                self.human.play = self.strategy_list.options[2]
-                correct = True
-            else:
-                print('Sorry, improper choice detected. Please enter only 1 - 3.')
+        self.human.get_play_from_user(self.strategy_list)
 
     def set_winner(self):
         if self.computer.play.defeats == self.human.play:
