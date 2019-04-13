@@ -181,6 +181,7 @@ class Controller:
 
     """
     def __init__(self, the_filename):
+        self.data_filename = the_filename
         self.raw_data = RawData(the_filename)
         self.user_list = UserList('Registered Users')
         self.build_user_list()
@@ -286,6 +287,10 @@ class Controller:
             else:
                 print('Improper input detected, please enter only a y or n.')
 
+    def store_all_user_data(self):
+        self.raw_data.data = self.user_list.data_for_pickle
+        self.raw_data.dump_data_to_file(self.data_filename)
+
 
 class RawData():
     """ Purpose: This class if to read and dump file data to be parsed by other class.
@@ -320,6 +325,14 @@ class UserList(list):
     def add_a_user(self, a_user):
         self.items.append(a_user)
 
+    @property
+    def data_for_pickle(self):
+        temp_list = []
+        for user in self.items:
+            temp_user = user.user_dictionary
+            temp_list.append(temp_user)
+        return temp_list
+
 
 class User:
 
@@ -348,11 +361,36 @@ class User:
         return [self.rock_plays, self.paper_plays, self.scissors_plays]
 
     @property
+    def user_dictionary(self):
+        return {'username' : self.username,
+                'password' : self.__password,
+                'rock' : self.rock_plays,
+                'paper' : self.paper_plays,
+                'scissors' : self.scissors_plays,
+                'wins' : self.wins,
+                'losses' : self.losses,
+                'ties' : self.ties}
+
+    @property
     def password_ok(self, test):
         return test == self.__password
 
 
+class Menu(list):
 
+    def __init__(self, title):
+        super().__init__()
+        self.title = title
+        self.items = []
+
+    def add_item(self, a_menu_item):
+        self.items.append(a_menu_item)
+
+
+class MenuItem:
+
+    def __init__(self):
+        self.
 
 """
                 Main Program
