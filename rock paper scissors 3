@@ -80,13 +80,16 @@ class HumanPlayer(Player):
 
 
     """
-    def __init__(self, name):
+    def __init__(self, the_username):
         super().__init__(name)
+        # self.get_name()
+        self.name = the_username
 
+"""
     def get_name(self):
         temp = input('Please enter the name you would like to be called by: ')
         self.name = temp
-
+"""
     def get_play_from_user(self, the_strategy):
         correct = False
         while not correct:
@@ -153,7 +156,6 @@ class StrategyList(list):
 class Strategy:
     """ Purpose: This class is for each possible strategy.
 
-
     """
     def __init__(self, name):
         self.name = name
@@ -180,14 +182,9 @@ class Controller:
         builds the players and the strategies and puts the strategies in a list.
 
     """
-    def __init__(self, the_filename):
-        self.data_filename = the_filename
-        self.raw_data = RawData(the_filename)
-        self.user_list = UserList('Registered Users')
-        self.build_user_list()
+    def __init__(self, the_user):
         self.strategy_list = StrategyList('Basic')
-        self.human = HumanPlayer('temp')
-        self.human.get_name()
+        self.human = HumanPlayer(the_user.username)
         self.computer = ComputerPlayer('HAL')
         self.tie = ComputerPlayer('Tie')
         self.winner = Player
@@ -204,18 +201,6 @@ class Controller:
         self.strategy_list.add_strategy(rock)
         self.strategy_list.add_strategy(paper)
         self.strategy_list.add_strategy(scissors)
-
-    def build_user_list(self):  #(self, name, password, rock, paper, scissors, wins, losses, ties)
-        for user in self.raw_data.data:
-            temp_user = User(user['username'],
-                             user['password'],
-                             user['rock'],
-                             user['paper'],
-                             user['scissors'],
-                             user['wins'],
-                             user['losses'],
-                             user['ties'])
-            self.user_list.add_a_user(temp_user)
 
     def do_computer_random(self):
         self.computer.select_random_play(self.strategy_list)
@@ -287,10 +272,6 @@ class Controller:
             else:
                 print('Improper input detected, please enter only a y or n.')
 
-    def store_all_user_data(self):
-        self.raw_data.data = self.user_list.data_for_pickle
-        self.raw_data.dump_data_to_file(self.data_filename)
-
 
 class RawData():
     """ Purpose: This class if to read and dump file data to be parsed by other class.
@@ -298,21 +279,22 @@ class RawData():
     """
     def __init__(self, the_filename):
         self.data = None
-        self.load_data_from_file(the_filename)
+        self.filename = the_filename
+        self.load_data_from_file()
 
-    def load_data_from_file(self, the_filename):
-        with open(the_filename, 'br') as f:
+    def load_data_from_file(self):
+        with open(self.filename, 'br') as f:
             self.data = pickle.load(f)
 
-    def dump_data_to_file(self, the_filename):
-        with open(the_filename, 'bw') as f:
-            pickle._dump(self.data, f)
+    def dump_data_to_file(self):
+        with open(self.filename, 'bw') as f:
+            pickle.dump(self.data, f)
 
     def __str__(self):
         return f" {self.data}"
 
     def __repr__(self):
-        return f"Raw data object."
+        return f"Raw data object ({self.filename})."
 
 
 class UserList(list):
@@ -332,6 +314,13 @@ class UserList(list):
             temp_user = user.user_dictionary
             temp_list.append(temp_user)
         return temp_list
+
+    def is_an_existing_username(self, test_name):
+        return test_name in self.existing_user_names
+
+    @property
+    def existing_user_names(self):
+        return [each_user['username'] for each_user in self.items]
 
 
 class User:
@@ -362,35 +351,102 @@ class User:
 
     @property
     def user_dictionary(self):
-        return {'username' : self.username,
-                'password' : self.__password,
-                'rock' : self.rock_plays,
-                'paper' : self.paper_plays,
-                'scissors' : self.scissors_plays,
-                'wins' : self.wins,
-                'losses' : self.losses,
-                'ties' : self.ties}
+        return {'username': self.username,
+                'password': self.__password,
+                'rock': self.rock_plays,
+                'paper': self.paper_plays,
+                'scissors': self.scissors_plays,
+                'wins': self.wins,
+                'losses': self.losses,
+                'ties': self.ties}
 
-    @property
     def password_ok(self, test):
         return test == self.__password
 
 
-class Menu(list):
+class ManageUser:
 
-    def __init__(self, title):
-        super().__init__()
-        self.title = title
-        self.items = []
+    def __init__(self, the_filename):
+        self.raw_data = RawData(the_filename)
+        self.user_list = UserList('Registered Users')
+        self.build_user_list()
+        self.registered_user = User
+        self.user_confirmed = False
 
-    def add_item(self, a_menu_item):
-        self.items.append(a_menu_item)
+    def build_user_list(self):
+        # (self, name, password, rock, paper, scissors, wins, losses, ties)
+        for user in self.raw_data.data:
+            temp_user = User(user['username'],
+                             user['password'],
+                             user['rock'],
+                             user['paper'],
+                             user['scissors'],
+                             user['wins'],
+                             user['losses'],
+                             user['ties'])
+            self.user_list.add_a_user(temp_user)
 
+    def store_all_user_data(self):
+        self.raw_data.data = self.user_list.data_for_pickle
+        self.raw_data.dump_data_to_file()
 
-class MenuItem:
+    def ask_for_login(self):
+        valid = False
+        while not valid:
+            choice = input(f"Welcome. Please select the number that applies:"
+                    f"\n1) Returning user.\n2) New user. \nSelect #: ")
+            if choice == '1':
+                self.do_login()
+                valid = True
+            elif choice == '2':
+                new_user_name = self.new_login()
+                new_password = self.create_new_password()
+                self.build_new_user(new_user_name, new_password)
+                valid = True
+            else:
+                print(f"Invalid input. Please just enter the number.")
 
-    def __init__(self):
-        self.
+    def do_login(self):
+        print('\n\n\nLogin for existing users.\n')
+        i = 1
+        while i < 3:
+            test_name = input("Please enter your username: ")
+            if self.user_list.is_an_existing_username(test_name):
+                self.verify_password(test_name)
+                break
+            else:
+                i += 1
+        while not self.user_confirmed:
+            print("Sorry. User could not be confirmed. Please login as a new user.")
+            new_user_name = self.new_login()
+            new_password = self.create_new_password()
+            self.build_new_user(new_user_name, new_password)
+
+    def new_login(self):
+        print('\n\n\nLogin for new users.\n')
+        # username
+        new_user = self.user_list.items[0]["username"]
+        while self.user_list.is_an_existing_username(new_user):
+            new_user = input("Please enter a new username: ")
+        return new_user
+
+    def create_new_password(self):
+        #passwords
+        new_password = ""
+        confirm_password = "zz"
+        while new_password != confirm_password:
+            new_password = input("Please enter your password: ")
+            confirm_password = input("Please reconfirm your password: ")
+        return new_password
+
+    def build_new_user(self, the_user_name, the_new_password):
+        self.registered_user = User(the_user_name, the_new_password, 0, 0, 0, 0, 0, 0)
+        self.user_list.add_a_user(self.registered_user)
+        self.user_confirmed = True
+
+    def verify_password(self, the_username):
+        pass
+
 
 """
                 Main Program
@@ -398,7 +454,16 @@ class MenuItem:
 
 filename = 'rpsUserData3.txt'
 
-game = Controller(filename)
+login_manager = ManageUser(filename)
+
+while not login_manager.user_confirmed:
+    login_manager.ask_for_login()
+
+the_player = login_manager.registered_user
+game = Controller(the_player)
+
+
+
 while not game.want_to_quit:
     game.ask_to_play_round()
     if not game.want_to_quit:
