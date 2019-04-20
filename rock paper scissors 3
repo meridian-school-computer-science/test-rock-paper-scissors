@@ -5,16 +5,17 @@ import pickle
 class Player:
     """ Purpose: This the super class for both the human player and computer player Classes.
 
+        User fields: username, (password not available), rock_plays, paper_plays, scissors_plays, wins, losses, ties
     """
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, the_user):
+        self.name = the_user.username
         self.play = Strategy
-        self.wins = 0
-        self.losses = 0
-        self.ties = 0
-        self.rock_plays = 1
-        self.paper_plays = 1
-        self.scissors_plays = 1
+        self.wins = the_user.wins
+        self.losses = the_user.losses
+        self.ties = the_user.ties
+        self.rock_plays = the_user.rock_plays
+        self.paper_plays = the_user.paper_plays
+        self.scissors_plays = the_user.scissors_plays
 
     def add_wins(self):
         self.wins += 1
@@ -36,15 +37,15 @@ class Player:
 
     @property
     def get_rock_plays(self):
-        return self.rock_plays - 1         # returns the real number of plays by removing artificial 1
+        return self.rock_plays         # returns the real number of plays by removing artificial 1
 
     @property
     def get_paper_plays(self):
-        return self.paper_plays - 1        # returns the real number of plays by removing artificial 1
+        return self.paper_plays        # returns the real number of plays by removing artificial 1
 
     @property
     def get_scissors_plays(self):
-        return self.scissors_plays - 1     # returns the real number of plays by removing artificial 1
+        return self.scissors_plays     # returns the real number of plays by removing artificial 1
 
     @property
     def total_plays(self):
@@ -64,7 +65,10 @@ class Player:
 
     @property
     def list_of_play_ratios(self):
-        return [self.rock_ratio, self.paper_ratio, self.scissors_ratio]
+        if self.rock_ratio == 0 or self.paper_ratio == 0 or self.scissors_ratio == 0:
+            return [.33, .33, .33]
+        else:
+            return [self.rock_ratio, self.paper_ratio, self.scissors_ratio]
 
     def __str__(self):
         if self.name == 'Tie':
@@ -80,16 +84,9 @@ class HumanPlayer(Player):
 
 
     """
-    def __init__(self, the_username):
-        super().__init__(name)
-        # self.get_name()
-        self.name = the_username
+    def __init__(self, the_user):
+        super().__init__(the_user)
 
-"""
-    def get_name(self):
-        temp = input('Please enter the name you would like to be called by: ')
-        self.name = temp
-"""
     def get_play_from_user(self, the_strategy):
         correct = False
         while not correct:
@@ -184,9 +181,11 @@ class Controller:
     """
     def __init__(self, the_user):
         self.strategy_list = StrategyList('Basic')
-        self.human = HumanPlayer(the_user.username)
-        self.computer = ComputerPlayer('HAL')
-        self.tie = ComputerPlayer('Tie')
+        self.human = HumanPlayer(the_user)
+        hal = User('HAL', 'hal', 0, 0, 0, 0, 0, 0)
+        self.computer = ComputerPlayer(hal)
+        tie = User('Tie', 'tie', 0, 0, 0, 0, 0, 0)
+        self.tie = ComputerPlayer(tie)
         self.winner = Player
         self.want_to_quit = False
         self.build_strategy_list()
@@ -312,6 +311,7 @@ class UserList(list):
         temp_list = []
         for user in self.items:
             temp_user = user.user_dictionary
+            print(temp_user)
             temp_list.append(temp_user)
         return temp_list
 
@@ -320,7 +320,20 @@ class UserList(list):
 
     @property
     def existing_user_names(self):
-        return [each_user['username'] for each_user in self.items]
+        return [each_user.username for each_user in self.items]
+
+    def get_a_user_based_on_username(self, the_username):
+        for user in self.items:
+            if user.username == the_username:
+                return user
+
+    def pop_a_user(self, the_username):
+        i = 0
+        while i < len(self.items):
+            if self.items[i].username == the_username:
+                return self.items.pop(i)
+            else:
+                i += 1
 
 
 class User:
@@ -413,7 +426,9 @@ class ManageUser:
             test_name = input("Please enter your username: ")
             if self.user_list.is_an_existing_username(test_name):
                 self.verify_password(test_name)
-                break
+                if self.user_confirmed:
+                    self.registered_user = self.user_list.pop_a_user(test_name)
+                    break
             else:
                 i += 1
         while not self.user_confirmed:
@@ -441,11 +456,20 @@ class ManageUser:
 
     def build_new_user(self, the_user_name, the_new_password):
         self.registered_user = User(the_user_name, the_new_password, 0, 0, 0, 0, 0, 0)
-        self.user_list.add_a_user(self.registered_user)
         self.user_confirmed = True
 
     def verify_password(self, the_username):
-        pass
+        the_user = self.user_list.get_a_user_based_on_username(the_username)
+        i = 1
+        while i < 3:
+            test_password = input(f"Please enter your password try #{i}: ")
+            if the_user.password_ok(test_password):
+                print("Password confirmed, thank you.")
+                self.user_confirmed = True
+                break
+            else:
+                print("Password incorrect.")
+                i += 1
 
 
 """
@@ -462,8 +486,6 @@ while not login_manager.user_confirmed:
 the_player = login_manager.registered_user
 game = Controller(the_player)
 
-
-
 while not game.want_to_quit:
     game.ask_to_play_round()
     if not game.want_to_quit:
@@ -471,3 +493,8 @@ while not game.want_to_quit:
         print(f"The winner was: {game.winner}")
     else:
         print('ok, goodbye.')
+
+        # the issue is that the data is stored in the player and needs to be moved to the user
+
+        login_manager.user_list.add_a_user(the_player)
+        login_manager.store_all_user_data()
