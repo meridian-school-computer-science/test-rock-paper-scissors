@@ -79,6 +79,7 @@ class StrategyList(list):
         super().__init__()
         self.name = name
         self.options = []
+        self.build_strategy_list()
 
     def add_strategy(self, a_strategy):
         self.options.append(a_strategy)
@@ -94,6 +95,17 @@ class StrategyList(list):
 
     def get_random(self):
         return random.choice(self.options)
+
+    def build_strategy_list(self):
+        rock = Strategy('rock')
+        paper = Strategy('paper')
+        scissors = Strategy('scissors')
+        rock.dominates(scissors)
+        paper.dominates(rock)
+        scissors.dominates(paper)
+        self.add_strategy(rock)
+        self.add_strategy(paper)
+        self.add_strategy(scissors)
 
 
 class Strategy:
@@ -128,18 +140,6 @@ class Controller:
         self.tie = ComputerPlayer('Tie')
         self.winner = Player
         self.want_to_quit = False
-        self.build_strategy_list()
-
-    def build_strategy_list(self):
-        rock = Strategy('rock')
-        paper = Strategy('paper')
-        scissors = Strategy('scissors')
-        rock.dominates(scissors)
-        paper.dominates(rock)
-        scissors.dominates(paper)
-        self.strategy_list.add_strategy(rock)
-        self.strategy_list.add_strategy(paper)
-        self.strategy_list.add_strategy(scissors)
 
     def do_computer_random(self):
         self.computer.select_random_play(self.strategy_list)
