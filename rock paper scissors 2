@@ -86,7 +86,7 @@ class HumanPlayer(Player):
         temp = input('Please enter the name you would like to be called by: ')
         self.name = temp
 
-    def get_play_from_user(self, the_strategy):
+    def get_play(self, the_strategy):
         correct = False
         while not correct:
             choice = int(input('Please choose a strategy:\n1) Rock, \n2) Paper, \n3) Scissors.\nSelection: '))
@@ -112,13 +112,10 @@ class ComputerPlayer(Player):
     def __init__(self, name):
         super().__init__(name)
 
-    def get_play(self):
-        return self.play
-
     def set_play(self, a_strategy):
         self.play = a_strategy
 
-    def select_random_play(self, the_strategy_list):
+    def get_play(self, the_strategy_list):
         play = the_strategy_list.get_random()
         self.set_play(play)
 
@@ -131,6 +128,7 @@ class StrategyList(list):
         super().__init__()
         self.name = name
         self.options = []
+        self.build_strategy_list()
 
     def add_strategy(self, a_strategy):
         self.options.append(a_strategy)
@@ -146,6 +144,17 @@ class StrategyList(list):
 
     def get_random(self):
         return random.choice(self.options)
+
+    def build_strategy_list(self):
+        rock = Strategy('rock')
+        paper = Strategy('paper')
+        scissors = Strategy('scissors')
+        rock.dominates(scissors)
+        paper.dominates(rock)
+        scissors.dominates(paper)
+        self.add_strategy(rock)
+        self.add_strategy(paper)
+        self.add_strategy(scissors)
 
 
 class Strategy:
@@ -186,21 +195,9 @@ class Controller:
         self.tie = ComputerPlayer('Tie')
         self.winner = Player
         self.want_to_quit = False
-        self.build_strategy_list()
-
-    def build_strategy_list(self):
-        rock = Strategy('rock')
-        paper = Strategy('paper')
-        scissors = Strategy('scissors')
-        rock.dominates(scissors)
-        paper.dominates(rock)
-        scissors.dominates(paper)
-        self.strategy_list.add_strategy(rock)
-        self.strategy_list.add_strategy(paper)
-        self.strategy_list.add_strategy(scissors)
 
     def do_computer_random(self):
-        self.computer.select_random_play(self.strategy_list)
+        self.computer.get_play(self.strategy_list)
 
     def update_player_trend_data(self, which_player):
         if which_player.play == self.strategy_list.options[0]:
@@ -222,7 +219,7 @@ class Controller:
             self.computer.set_play(self.strategy_list.options[0])      # play rock
 
     def get_human_play(self):
-        self.human.get_play_from_user(self.strategy_list)
+        self.human.get_play(self.strategy_list)
 
     def set_winner(self):
         if self.computer.play.defeats == self.human.play:
