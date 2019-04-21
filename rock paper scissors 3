@@ -272,7 +272,7 @@ class Controller:
                 print('Improper input detected, please enter only a y or n.')
 
 
-class RawData():
+class RawData:
     """ Purpose: This class if to read and dump file data to be parsed by other class.
 
     """
@@ -375,6 +375,22 @@ class User:
 
     def password_ok(self, test):
         return test == self.__password
+
+    def update_game_data(self, the_controller):
+        #         self.username = name
+        #         self.__password = password
+        #         self.rock_plays = rock
+        #         self.paper_plays = paper
+        #         self.scissors_plays = scissors
+        #         self.wins = wins
+        #         self.losses = losses
+        #         self.ties = ties
+        self.wins = the_controller.human.wins
+        self.losses = the_controller.human.losses
+        self.ties = the_controller.human.ties
+        self.rock_plays = the_controller.human.rock_plays
+        self.paper_plays = the_controller.human.paper_plays
+        self.scissors_plays = the_controller.human.scissors_plays
 
 
 class ManageUser:
@@ -493,8 +509,7 @@ while not game.want_to_quit:
         print(f"The winner was: {game.winner}")
     else:
         print('ok, goodbye.')
-
-        # the issue is that the data is stored in the player and needs to be moved to the user
-
+        # save data from this game to the storage file
+        the_player.update_game_data(game)
         login_manager.user_list.add_a_user(the_player)
         login_manager.store_all_user_data()
