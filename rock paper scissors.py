@@ -35,7 +35,7 @@ class HumanPlayer(Player):
         temp = input('Please enter the name you would like to be called by: ')
         self.name = temp
 
-    def get_play_from_user(self, the_strategy):
+    def get_play(self, the_strategy):
         correct = False
         while not correct:
             choice = int(input('Please choose a strategy:\n1) Rock, \n2) Paper, \n3) Scissors.\nSelection: '))
@@ -51,6 +51,7 @@ class HumanPlayer(Player):
             else:
                 print('Sorry, improper choice detected. Please enter only 1 - 3.')
 
+
 class ComputerPlayer(Player):
     """ Purpose: This class is for a computer opponent.
 
@@ -62,13 +63,10 @@ class ComputerPlayer(Player):
         super().__init__(name)
         self.play = Strategy
 
-    def get_play(self):
-        return self.play
-
     def set_play(self, a_strategy):
         self.play = a_strategy
 
-    def select_random_play(self, the_strategy_list):
+    def get_play(self, the_strategy_list):
         play = the_strategy_list.get_random()
         self.set_play(play)
 
@@ -129,6 +127,9 @@ class Strategy:
             temp = temp + f" defeats {self.defeats.name}"
         return temp
 
+    def __gt__(self, other):
+        return self.defeats == other
+
 
 class Controller:
 
@@ -142,15 +143,15 @@ class Controller:
         self.want_to_quit = False
 
     def do_computer_random(self):
-        self.computer.select_random_play(self.strategy_list)
+        self.computer.get_play(self.strategy_list)
 
     def get_human_play(self):
-        self.human.get_play_from_user(self.strategy_list)
+        self.human.get_play(self.strategy_list)
 
     def set_winner(self):
-        if self.computer.play.defeats == self.human.play:
+        if self.computer.play > self.human.play:
             self.winner = self.computer
-        elif self.human.play.defeats == self.computer.play:
+        elif self.human.play > self.computer.play:
             self.winner = self.human
         else:
             self.winner = self.tie
