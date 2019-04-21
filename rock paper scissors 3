@@ -491,9 +491,8 @@ class ManageUser:
 """
                 Main Program
 """
-
+print('Test with users: alpha password: alpha1, or bravo password: bravo2\n pattern is all the way to hotel8')
 filename = 'rpsUserData3.txt'
-
 login_manager = ManageUser(filename)
 
 while not login_manager.user_confirmed:
